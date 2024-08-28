@@ -1,0 +1,7 @@
+node_modules/
+.vscode/
+out/
+*.log
+*.tsbuildinfo
+package-lock.json
+*.vsix

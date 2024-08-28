@@ -1,0 +1,55 @@
+{
+  "name": "goose-vscode",
+  "version": "1.0.0",
+  "publisher": "block",
+  "main": "./out/extension.js",
+  "scripts": {
+    "test": "tsc",
+    "watch": "tsc -w",
+    "package": "vsce package"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "Apache-2.0",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^22.3.0",
+    "@types/vscode": "^1.92.0",
+    "typescript": "^5.5.4",
+    "vsce": "^2.7.0"
+  },
+  "dependencies": {
+    "@vscode/l10n": "^0.0.18"
+  },
+  "engines": {
+    "vscode": "^1.92.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/square/goose-vscode"
+  },
+  "activationEvents": [
+    "*"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "extension.openGooseTerminal",
+        "title": "Open Goose Terminal"
+      },
+      {
+        "command": "extension.sendToGoose",
+        "title": "🪿 Ask Goose 🪿"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "extension.sendToGoose",
+          "when": "editorHasSelection",
+          "group": "navigation"
+        }
+      ]
+    }
+  }
+}
