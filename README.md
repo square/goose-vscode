@@ -1,8 +1,10 @@
 # VS Code Extension for goose
 
-This runs goose in your VS Code instance every time you open it, and lets you interact with goose either directly, or you can highlight sections of code, ask questions about it, or even ask it to change the code or do work with it.
+This runs <a href="https://github.com/square/goose">goose</a> in your VS Code instance every time you open it, and lets you interact with goose either directly, or you can highlight sections of code, ask questions about it, or even ask it to change the code or do work with it.
 
-**IMPORTANT:** This is a work in progress as we explore what modalities we want from goose an an IDE. Use with caution.
+> [!IMPORTANT]  
+> This requires that you have <a href="https://github.com/square/goose">goose</a> installed and running for this to work. 
+> **This is a work in progress as we explore what modalities we want from goose an an IDE. Use with caution.**
 
 ## Table of Contents
 
