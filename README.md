@@ -17,14 +17,16 @@ This runs <a href="https://github.com/square/goose">goose</a> in your VS Code in
 
 ## In Action
 
-![Screenshot 2024-08-16 at 6 04 02 PM](https://github.com/user-attachments/assets/ab25b87b-fb8e-427e-80cd-52569e0c295a)
+![action1](https://github.com/user-attachments/assets/7cecc165-72c3-4936-977e-f7b9cf2c3906)
 
-![Screenshot 2024-08-16 at 6 03 09 PM](https://github.com/user-attachments/assets/f61408bb-e54b-4520-848a-9a1f0f599baa)
-![Screenshot 2024-08-16 at 6 03 31 PM](https://github.com/user-attachments/assets/c057df95-eb5c-4ec1-84a1-fd694c47848f)
+![action2](https://github.com/user-attachments/assets/2425f54d-c88b-4ef0-b00e-1ceac9a8dcd5)
+![action3](https://github.com/user-attachments/assets/e35296d8-aaf7-43e1-915c-6fb86ed05cb9)
+
 
 Can ask it to enhance code, can run commands, take action, test and more:
 
-![Screenshot 2024-08-16 at 6 04 54 PM](https://github.com/user-attachments/assets/1ad84665-186f-4473-8f92-d994ba5fc663)
+![action4](https://github.com/user-attachments/assets/c6f00750-0f28-4683-84a1-765740c72fba)
+
 
 ## Running from Source
 
