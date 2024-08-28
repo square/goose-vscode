@@ -16,7 +16,7 @@ export function activate(context: vscode.ExtensionContext) {
         execSync('goose');
     } catch (error) {
         const installUrl = 'https://github.com/square/goose-vscode';
-        vscode.window.showErrorMessage('Goose CLI is required to be installed', { modal: true }, 'Install').then(selection => {
+        vscode.window.showErrorMessage('goose is required to be installed', { modal: true }, 'Install').then(selection => {
             if (selection === 'Install') {
                 vscode.env.openExternal(vscode.Uri.parse(installUrl));
             }
@@ -24,7 +24,7 @@ export function activate(context: vscode.ExtensionContext) {
         return; // Exit activation if goose is not installed
     }
 
-    vscode.window.showInformationMessage('goose agent starting - this may take a minute.. 🕐');
+    vscode.window.showInformationMessage('goose agent starting, this may take a minute.. 🕐');
 
 
     const updateOpenFiles = () => {
@@ -35,7 +35,7 @@ export function activate(context: vscode.ExtensionContext) {
         fs.writeFileSync(tempFilePathDirty, unsavedChanges, 'utf-8');
     };
 
-    const initialPrompt = `Please take a look in the current directory to orient yourself for the type of project this is. You are operating inside VSCode, if you need to know what files are open, please look in ${tempFilePath}, which will be updated with whatever the user has open in VSCode, also ${tempFilePathDirty} has a list of files which are not saved, so check with the user if you need to edit one of those files. Provide a brief summary of things with a welcome message, but be brief. No need to open each file yet.`;
+    const initialPrompt = `Starting up in a new context: you are now in a new directory running inside vs code, look around for directories which may be source code, if there is a .goosehint file read it, can also look at README file for hints on how to navigate the project in this dir. Following is a list of files currently open being edited (updated dynamically you can read when needed): ${tempFilePath} which may be relevant, and following is a list of files which have unsaved changes (be careful to not over write): ${tempFilePathDirty}. Present a short welcome messsage when ready for instruction.`;
 
     // Subscribe to events to update the temp file when open files change
     vscode.workspace.onDidOpenTextDocument(updateOpenFiles, null, context.subscriptions);
@@ -46,7 +46,7 @@ export function activate(context: vscode.ExtensionContext) {
                 name: terminalName,
                 location: { viewColumn: vscode.ViewColumn.Beside }
             });
-            gooseTerminal.sendText('goose session start');
+            gooseTerminal.sendText('goose session resume');
 
             setTimeout(() => {
                 gooseTerminal?.sendText('\n');
