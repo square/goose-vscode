@@ -35,7 +35,7 @@ export function activate(context: vscode.ExtensionContext) {
         fs.writeFileSync(tempFilePathDirty, unsavedChanges, 'utf-8');
     };
 
-    const initialPrompt = `Starting up in a new context: you are now in a new directory running inside vs code, look around for directories which may be source code, if there is a .goosehint file read it, can also look at README file for hints on how to navigate the project in this dir. Following is a list of files currently open being edited (updated dynamically you can read when needed): ${tempFilePath} which may be relevant, and following is a list of files which have unsaved changes (be careful to not over write): ${tempFilePathDirty}. Present a short welcome messsage when ready for instruction.`;
+    const initialPrompt = `Starting up in a new context: you are now running inside vs code, please list files/dirs and look around for directories which may be source code, if there is a .goosehint file read it, can also look at README file for hints on how to navigate the project in this dir. Following is a list of files currently open being edited (updated dynamically you can read when needed): ${tempFilePath} which may be relevant, and following is a list of files which have unsaved changes (be careful to not over write): ${tempFilePathDirty}. Present a short welcome messsage when ready for instruction.`;
 
     // Subscribe to events to update the temp file when open files change
     vscode.workspace.onDidOpenTextDocument(updateOpenFiles, null, context.subscriptions);
