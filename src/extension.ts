@@ -2,15 +2,30 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
+import { execSync } from 'child_process';
 
 let gooseTerminal: vscode.Terminal | undefined;
 const terminalName = '🪿 goose agent 🪿';
 const tempFilePath = path.join(os.tmpdir(), 'goose_open_files.txt');
 const tempFilePathDirty = path.join(os.tmpdir(), 'goose_unsaved_files.txt');
 
-
 export function activate(context: vscode.ExtensionContext) {
-    vscode.window.showInformationMessage('goose agent activated');
+
+    // Check if goose CLI is installed
+    try {
+        execSync('goose');
+    } catch (error) {
+        const installUrl = 'https://github.com/square/goose-vscode';
+        vscode.window.showErrorMessage('Goose CLI is required to be installed', { modal: true }, 'Install').then(selection => {
+            if (selection === 'Install') {
+                vscode.env.openExternal(vscode.Uri.parse(installUrl));
+            }
+        });
+        return; // Exit activation if goose is not installed
+    }
+
+    vscode.window.showInformationMessage('goose agent starting - this may take a minute.. 🕐');
+
 
     const updateOpenFiles = () => {
         const openTextDocuments = vscode.workspace.textDocuments.filter(doc => !(doc.fileName.startsWith('git') || doc.fileName.endsWith('.git')));
