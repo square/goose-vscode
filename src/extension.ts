@@ -5,7 +5,7 @@ import * as path from 'path';
 import { execSync } from 'child_process';
 
 let gooseTerminal: vscode.Terminal | undefined;
-const terminalName = '🪿 goose agent 🪿';
+const terminalName = '🪿 goose chat 🪿';
 const tempFilePath = path.join(os.tmpdir(), 'goose_open_files.txt');
 const tempFilePathDirty = path.join(os.tmpdir(), 'goose_unsaved_files.txt');
 
@@ -24,7 +24,7 @@ export function activate(context: vscode.ExtensionContext) {
         return; // Exit activation if goose is not installed
     }
 
-    vscode.window.showInformationMessage('goose agent starting, this may take a minute.. 🕐');
+    vscode.window.showInformationMessage('goose agent starting, this may take a minute.. ⏰');
 
 
     const updateOpenFiles = () => {
@@ -59,7 +59,6 @@ export function activate(context: vscode.ExtensionContext) {
             gooseTerminal.show();
 
     });
-
     context.subscriptions.push(openTerminalDisposable);
 
     // Automatically open the terminal when the extension activates
@@ -94,8 +93,39 @@ export function activate(context: vscode.ExtensionContext) {
         
         gooseTerminal?.show();
     });
-
+    
     context.subscriptions.push(sendToGooseDisposable);
+
+
+
+
+    // Completion suggestion: ask Goose to finish it
+    vscode.languages.registerCodeActionsProvider('*', {
+        provideCodeActions(document: vscode.TextDocument, range: vscode.Range, context: vscode.CodeActionContext, token: vscode.CancellationToken) {            
+            const codeAction = new vscode.CodeAction('Ask Goose to finish it', vscode.CodeActionKind.QuickFix);
+            codeAction.command = { command: 'extension.askGooseToFinishIt', title: 'Ask Goose to finish it' };
+            return [codeAction];
+        }
+    });
+
+    const askGooseToFinishItCommand = vscode.commands.registerCommand('extension.askGooseToFinishIt', async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            return;
+        }
+
+        const document = editor.document;
+        const selection = editor.selection;
+        const filePath = document.uri.fsPath;
+        const startLine = selection.start.line + 1;
+
+        document.save();
+        
+
+        gooseTerminal?.sendText(`There is some unfinished code around ${startLine} in file ${filePath}, can you please try to complete it as best makes sense.`);
+        gooseTerminal?.show();
+    });
+    context.subscriptions.push(askGooseToFinishItCommand);
 }
 
 export function deactivate() {
