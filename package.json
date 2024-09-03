@@ -33,6 +33,17 @@
     "*"
   ],
   "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "Goose Settings",
+      "properties": {
+        "goose.defaultCommand": {
+          "type": "string",
+          "default": "goose session resume",
+          "description": "Default command to be executed in Goose terminal."
+        }
+      }
+    },
     "commands": [
       {
         "command": "extension.openGooseTerminal",
