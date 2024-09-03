@@ -2,7 +2,7 @@
   "name": "goose-vscode",
   "version": "0.0.2",
   "publisher": "michaelneale",
-  "icon": "goose-icon.jpg",
+  "icon": "goose-icon.png",
   "main": "./out/extension.js",
   "scripts": {
     "test": "tsc",
