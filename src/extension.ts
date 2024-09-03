@@ -91,9 +91,9 @@ export function activate(context: vscode.ExtensionContext) {
         let textToAskGoose = question;
         if (hasSelectedText) {
             const flattenedText = selectedText.replace(/\n/g, ' ');
-            textToAskGoose = `Please look around selected text "${flattenedText}"
-            from lines ${startLine}-${endLine} in file ${filePath}
-            and answer this question: ${question}:`
+            textToAskGoose = `Please look around selected text "${flattenedText}"` + 
+                             `from lines ${startLine}-${endLine} in file ${filePath}` +
+                             `and answer this question: ${question}:`
         }
         gooseTerminal?.sendText(textToAskGoose);
         gooseTerminal?.show();
