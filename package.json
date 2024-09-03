@@ -39,7 +39,7 @@
       "properties": {
         "goose.defaultCommand": {
           "type": "string",
-          "default": "goose session resume",
+          "default": "goose session start",
           "description": "Default command to be executed in Goose terminal."
         }
       }

@@ -88,7 +88,7 @@ export function activate(context: vscode.ExtensionContext) {
         
         if (startLine != endLine) {     
             const selectedText = editor.document.getText(selection).replace(/\n/g, ' ');       
-            gooseTerminal?.sendText(`Question ${question} regarding selected text: ${selectedText} (from lines ${startLine}-${endLine} in file ${filePath})`);
+            gooseTerminal?.sendText(`Please look around selected text "${selectedText}" from lines ${startLine}-${endLine} in file ${filePath} and answer this question: ${question}:`);
         } else {
             gooseTerminal?.sendText(question);
         }
