@@ -41,23 +41,25 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.workspace.onDidOpenTextDocument(updateOpenFiles, null, context.subscriptions);
     vscode.workspace.onDidCloseTextDocument(updateOpenFiles, null, context.subscriptions);
 
+    const config = vscode.workspace.getConfiguration('goose');
+    const defaultCommand = config.get('defaultCommand', 'goose session resume');
+
     let openTerminalDisposable = vscode.commands.registerCommand('extension.openGooseTerminal', () => {
-            gooseTerminal = vscode.window.createTerminal({
-                name: terminalName,
-                location: { viewColumn: vscode.ViewColumn.Beside }
-            });
-            gooseTerminal.sendText('goose session resume');
+        gooseTerminal = vscode.window.createTerminal({
+            name: terminalName,
+            location: { viewColumn: vscode.ViewColumn.Beside }
+        });
+        gooseTerminal.sendText(defaultCommand);
 
-            setTimeout(() => {
-                gooseTerminal?.sendText('\n');
+        setTimeout(() => {
+            gooseTerminal?.sendText('\n');
 
-                // Initial update of open files
-                updateOpenFiles();
-                gooseTerminal?.sendText(initialPrompt);  
-            }, 4000);
-            
-            gooseTerminal.show();
-
+            // Initial update of open files
+            updateOpenFiles();
+            gooseTerminal?.sendText(initialPrompt);  
+        }, 4000);
+        
+        gooseTerminal.show();
     });
     context.subscriptions.push(openTerminalDisposable);
 
@@ -95,9 +97,6 @@ export function activate(context: vscode.ExtensionContext) {
     });
     
     context.subscriptions.push(sendToGooseDisposable);
-
-
-
 
     // Completion suggestion: ask Goose to finish it
     vscode.languages.registerCodeActionsProvider('*', {
