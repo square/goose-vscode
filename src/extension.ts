@@ -86,13 +86,16 @@ export function activate(context: vscode.ExtensionContext) {
             return;
         }
         
-        if (startLine != endLine) {     
-            const selectedText = editor.document.getText(selection).replace(/\n/g, ' ');       
-            gooseTerminal?.sendText(`Please look around selected text "${selectedText}" from lines ${startLine}-${endLine} in file ${filePath} and answer this question: ${question}:`);
-        } else {
-            gooseTerminal?.sendText(question);
+        const selectedText = editor.document.getText(selection);
+        const hasSelectedText = selectedText.trim().length > 0;
+        let textToAskGoose = question;
+        if (hasSelectedText) {
+            const flattenedText = selectedText.replace(/\n/g, ' ');
+            textToAskGoose = `Please look around selected text "${flattenedText}"` + 
+                             `from lines ${startLine}-${endLine} in file ${filePath}` +
+                             `and answer this question: ${question}:`
         }
-        
+        gooseTerminal?.sendText(textToAskGoose);
         gooseTerminal?.show();
     });
     
