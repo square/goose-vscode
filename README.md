@@ -9,11 +9,18 @@ This runs <a href="https://github.com/square/goose">goose</a> in your VS Code in
 ## Table of Contents
 
 - [In Action](#in-action)
-- [Running from Source](#running-from-source)
-- [Installation into VS Code from Source](#installation-into-vs-code-from-source)
+- [Installing](#installing)
+- [Developing the Extension](#developing-the-extension)
+  - [Running from Source](#running-from-source)
   - [Packaging the Extension](#packaging-the-extension)
   - [Installing the Extension](#installing-the-extension)
   - [Uninstalling the Extension](#uninstalling-the-extension)
+
+## Installing 
+
+You can install this extension from the extensions in VS Code directly from the marketplace: 
+
+[Visual Studio Marketplace - goose-vscode](https://marketplace.visualstudio.com/items?itemName=michaelneale.goose-vscode)
 
 ## In Action
 
@@ -28,11 +35,15 @@ Can ask it to enhance code, can run commands, take action, test and more:
 ![action4](https://github.com/user-attachments/assets/c6f00750-0f28-4683-84a1-765740c72fba)
 
 
-## Running from Source
+## Developing the Extension
+
+NOTE: You don't usually need to install this from source as it is in the extensions marketplace.
+
+### Running from Source
+
+NOTE: You don't usually need to run this from source unless you are working on this extension.
 
 Open this repo via `code .` and then press F5 to run a new workspace with this in it. 
-
-## Installation into VS Code from Source
 
 ### Packaging the Extension
 
@@ -50,7 +61,7 @@ This will create a `.vsix` file in the root directory of the project.
 To install the packaged extension, use the following command:
 
 ```sh
-code --install-extension goose-vscode-1.0.0.vsix
+code --install-extension your .vsix file here.
 ```
 
 ### Uninstalling the Extension
