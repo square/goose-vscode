@@ -1,13 +1,14 @@
 {
   "name": "goose-vscode",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "publisher": "michaelneale",
   "icon": "goose-icon.png",
   "main": "./out/extension.js",
   "scripts": {
+    "postinstall": "tsc",
     "test": "tsc",
     "watch": "tsc -w",
-    "package": "vsce package"
+    "package": "tsc && vsce package"
   },
   "keywords": [],
   "author": "",
