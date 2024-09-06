@@ -5,6 +5,7 @@
   "icon": "goose-icon.png",
   "main": "./out/extension.js",
   "scripts": {
+    "postinstall": "tsc",
     "test": "tsc",
     "watch": "tsc -w",
     "package": "tsc && vsce package"
