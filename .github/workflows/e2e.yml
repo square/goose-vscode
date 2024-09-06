@@ -1,0 +1,29 @@
+name: Run E2E Tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  e2e-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - run: npm install
+
+      - name: Download VS Code
+        run: npx extension-tester download-vscode
+
+      - name: Run End-to-End Tests
+        run: npx extension-tester run
