@@ -8,22 +8,28 @@ let gooseTerminal: vscode.Terminal | undefined;
 const terminalName = '🪿 goose chat 🪿';
 const tempFilePath = path.join(os.tmpdir(), 'goose_open_files.txt');
 const tempFilePathDirty = path.join(os.tmpdir(), 'goose_unsaved_files.txt');
+const FALLBACK_COMMAND = "goose session start"
 
 export function activate(context: vscode.ExtensionContext) {
+    
 
     // Check if goose CLI is installed
+    const config = vscode.workspace.getConfiguration('goose');
+    let defaultCommand = config.get('defaultCommand', FALLBACK_COMMAND);
+    
     try {
         execSync('goose');
     } catch (error) {
-        const installUrl = 'https://github.com/square/goose-vscode';
-        vscode.window.showErrorMessage('goose is required to be installed', { modal: true }, 'Install').then(selection => {
-            if (selection === 'Install') {
-                vscode.env.openExternal(vscode.Uri.parse(installUrl));
-            }
-        });
-        return; // Exit activation if goose is not installed
+        try {
+            execSync('sq');
+            if (defaultCommand == FALLBACK_COMMAND) {
+                defaultCommand = 'sq goose session start'
+            }            
+        } catch (error) {
+            vscode.window.showWarningMessage('If goose isn\'t working, please check the goose command line tool is installed and working.');
+        }
     }
-
+    
     vscode.window.showInformationMessage('goose agent starting, this may take a minute.. ⏰');
 
 
@@ -41,8 +47,8 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.workspace.onDidOpenTextDocument(updateOpenFiles, null, context.subscriptions);
     vscode.workspace.onDidCloseTextDocument(updateOpenFiles, null, context.subscriptions);
 
-    const config = vscode.workspace.getConfiguration('goose');
-    const defaultCommand = config.get('defaultCommand', 'goose session resume');
+    
+    
 
     let openTerminalDisposable = vscode.commands.registerCommand('extension.openGooseTerminal', () => {
         gooseTerminal = vscode.window.createTerminal({
