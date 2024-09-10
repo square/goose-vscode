@@ -1,6 +1,6 @@
 {
   "name": "goose-vscode",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "publisher": "michaelneale",
   "icon": "goose-icon.png",
   "main": "./out/extension.js",
