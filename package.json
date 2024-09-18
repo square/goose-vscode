@@ -24,7 +24,7 @@
     "@vscode/l10n": "^0.0.18"
   },
   "engines": {
-    "vscode": "^1.92.0"
+    "vscode": "^1.91.1"
   },
   "repository": {
     "type": "git",
