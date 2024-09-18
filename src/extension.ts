@@ -96,11 +96,17 @@ export function activate(context: vscode.ExtensionContext) {
         const hasSelectedText = selectedText.trim().length > 0;
         let textToAskGoose = question;
         if (hasSelectedText) {
-            const flattenedText = selectedText.replace(/\n/g, ' ');
-            textToAskGoose = `Please look around selected text "${flattenedText}"` + 
-                             `from lines ${startLine}-${endLine} in file ${filePath}` +
-                             `and answer this question: ${question}:`
+            // There is some selected test
+            textToAskGoose = `Looking at file: ${filePath} regarding lines: ${startLine} to ${endLine}` +
+                             ` please load fhe file, answer this question: [${question}].` + 
+                             ` Note: If editing is required, keep edits around these lines and don't delete or modify unrelated code.`
+        } else {
+            // cursor is just position in file
+            textToAskGoose = `Looking at file: ${filePath} around line: ${startLine}, ` +
+                            ` Please answer the query: [${question}] `                            
+
         }
+        editor.document.save();
         gooseTerminal?.sendText(textToAskGoose);
         gooseTerminal?.show();
     });
@@ -110,11 +116,39 @@ export function activate(context: vscode.ExtensionContext) {
     // Completion suggestion: ask Goose to finish it
     vscode.languages.registerCodeActionsProvider('*', {
         provideCodeActions(document: vscode.TextDocument, range: vscode.Range, context: vscode.CodeActionContext, token: vscode.CancellationToken) {            
-            const codeAction = new vscode.CodeAction('Ask Goose to finish it', vscode.CodeActionKind.QuickFix);
-            codeAction.command = { command: 'extension.askGooseToFinishIt', title: 'Ask Goose to finish it' };
+            const codeAction = new vscode.CodeAction('Ask Goose to fix it', vscode.CodeActionKind.QuickFix);
+            codeAction.command = { command: 'extension.askGooseToFinishIt', title: 'Ask Goose to fix it' };
             return [codeAction];
         }
     });
+
+    
+    // Register inline completion provider
+    vscode.languages.registerInlineCompletionItemProvider('*', {
+        provideInlineCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
+            const editor = vscode.window.activeTextEditor;
+            if (!editor) {
+                return;
+            }
+
+            const completionItem = new vscode.InlineCompletionItem('Ask Goose to complete this code');
+            completionItem.insertText = '';
+            completionItem.command = { command: 'extension.askGooseToFinishIt', title: 'Ask Goose to complete this code' };
+            return [completionItem];
+        }
+    });
+
+    // Register content completion extension
+    vscode.languages.registerCompletionItemProvider('*', {
+        provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
+            const completionItem = new vscode.CompletionItem('Ask Goose to finish this code', vscode.CompletionItemKind.Snippet);
+            completionItem.insertText = '';
+            completionItem.command = { command: 'extension.askGooseToFinishIt', title: 'Ask Goose to finish this code' };
+            return [completionItem];
+        }
+    }, '.');
+  
+
 
     const askGooseToFinishItCommand = vscode.commands.registerCommand('extension.askGooseToFinishIt', async () => {
         const editor = vscode.window.activeTextEditor;
@@ -128,12 +162,32 @@ export function activate(context: vscode.ExtensionContext) {
         const startLine = selection.start.line + 1;
 
         document.save();
-        
 
-        gooseTerminal?.sendText(`There is some unfinished code around ${startLine} in file ${filePath}, can you please try to complete it as best makes sense.`);
+        gooseTerminal?.sendText(`There is some unfinished code at line: ${startLine} in file: ${filePath}. ` + 
+                                `Complete the code based on the context, from that line onwards. Do not delete content.`);
         gooseTerminal?.show();
     });
     context.subscriptions.push(askGooseToFinishItCommand);
+
+    const askGooseToFix = vscode.commands.registerCommand('extension.askGooseToFix', async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            return;
+        }
+
+        const document = editor.document;
+        const selection = editor.selection;
+        const filePath = document.uri.fsPath;
+        const startLine = selection.start.line + 1;
+
+        document.save();
+
+        gooseTerminal?.sendText(`Can you look at the code on line: ${startLine} in file: ${filePath}. ` + 
+                                `and fix any problems you see on this line and near it. Try not to delete content.`);
+        gooseTerminal?.show();
+    });
+    context.subscriptions.push(askGooseToFix);    
+
 }
 
 export function deactivate() {
