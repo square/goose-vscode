@@ -1,6 +1,6 @@
 {
   "name": "goose-vscode",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "publisher": "michaelneale",
   "icon": "goose-icon.png",
   "main": "./out/extension.js",
@@ -16,7 +16,7 @@
   "description": "Goose is a programming agent that runs on your machine. You need goose-ai package installed for this to work. goose: https://github.com/square/goose",
   "devDependencies": {
     "@types/node": "^22.3.0",
-    "@types/vscode": "^1.92.0",
+    "@types/vscode": "^1.91.0",
     "typescript": "^5.5.4",
     "vsce": "^2.7.0"
   },
