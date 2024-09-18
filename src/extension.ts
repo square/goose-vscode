@@ -96,10 +96,15 @@ export function activate(context: vscode.ExtensionContext) {
         const hasSelectedText = selectedText.trim().length > 0;
         let textToAskGoose = question;
         if (hasSelectedText) {
-            const flattenedText = selectedText.replace(/\n/g, ' ');
-            textToAskGoose = `Please look around selected text "${flattenedText}"` + 
-                             `from lines ${startLine}-${endLine} in file ${filePath}` +
-                             `and answer this question: ${question}:`
+            // There is some selected test
+            textToAskGoose = `Looking at file: ${filePath} regarding lines: ${startLine} to${endLine}` +
+                             ` please answer this question: [${question}].` + 
+                             ` If editing is required, keep edits around these lines and don't delete or modify unrelated code.`
+        } else {
+            // cursor is just position in file
+            textToAskGoose = `Looking at file: ${filePath} around line: ${startLine}, ` +
+                            ` Please answer the query: [${question}] `                            
+
         }
         gooseTerminal?.sendText(textToAskGoose);
         gooseTerminal?.show();
@@ -128,9 +133,9 @@ export function activate(context: vscode.ExtensionContext) {
         const startLine = selection.start.line + 1;
 
         document.save();
-        
 
-        gooseTerminal?.sendText(`There is some unfinished code around ${startLine} in file ${filePath}, can you please try to complete it as best makes sense.`);
+        gooseTerminal?.sendText(`There is some unfinished code at line: ${startLine} in file: ${filePath}. ` + 
+                                `Complete the code based on the context, from that line onwards. Do not delete content.`);
         gooseTerminal?.show();
     });
     context.subscriptions.push(askGooseToFinishItCommand);
