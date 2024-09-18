@@ -113,6 +113,21 @@ export function activate(context: vscode.ExtensionContext) {
     
     context.subscriptions.push(sendToGooseDisposable);
 
+    // Register code lens provider
+    vscode.languages.registerCodeLensProvider('*', {
+        provideCodeLenses(document: vscode.TextDocument, token: vscode.CancellationToken) {
+            const editor = vscode.window.activeTextEditor;
+            if (!editor) {
+                return [];
+            }
+            const codeLens = new vscode.CodeLens(editor.selection, {
+                command: 'extension.sendToGoose',
+                title: '🪿 Ask Goose 🪿'
+            });
+            return [codeLens];
+        }
+    });
+
     // Completion suggestion: ask Goose to finish it
     vscode.languages.registerCodeActionsProvider('*', {
         provideCodeActions(document: vscode.TextDocument, range: vscode.Range, context: vscode.CodeActionContext, token: vscode.CancellationToken) {            
