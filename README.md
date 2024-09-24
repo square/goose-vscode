@@ -1,5 +1,8 @@
 # VS Code Extension for goose
 
+> [!WARNING]  
+> This is an experimental and work in progress extension, update it frequently.
+
 This runs <a href="https://github.com/square/goose">goose</a> in your VS Code instance every time you open it, and lets you interact with goose either directly, or you can highlight sections of code, ask questions about it, or even ask it to change the code or do work with it.
 
 > [!IMPORTANT]  
