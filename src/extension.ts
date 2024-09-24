@@ -33,20 +33,6 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.window.showInformationMessage('goose agent starting, this may take a minute.. ⏰');
 
 
-    const updateOpenFiles = () => {
-        const openTextDocuments = vscode.workspace.textDocuments.filter(doc => !(doc.fileName.startsWith('git') || doc.fileName.endsWith('.git')));
-        const openFiles = openTextDocuments.map(doc => doc.fileName).join('\n');
-        const unsavedChanges = vscode.workspace.textDocuments.filter(doc => doc.isDirty).join('\n');
-        fs.writeFileSync(tempFilePath, openFiles, 'utf-8');
-        fs.writeFileSync(tempFilePathDirty, unsavedChanges, 'utf-8');
-    };
-
-    const initialPrompt = `Starting up in a new context: you are now running inside vs code, please list files/dirs and look around for directories which may be source code (.gitignore may be useful of where not to look), look for README and other top level files or build config files for hints on how to navigate the project in this dir. If it is a git repository it may be interesting to look at any unstaged changes. Following is a list of files currently open being edited (updated dynamically you can read when needed): ${tempFilePath} which may be relevant, and following is a list of files which have unsaved changes (be careful to not over write): ${tempFilePathDirty}. Present a brief welcome messsage when ready for instruction.`;
-
-    // Subscribe to events to update the temp file when open files change
-    vscode.workspace.onDidOpenTextDocument(updateOpenFiles, null, context.subscriptions);
-    vscode.workspace.onDidCloseTextDocument(updateOpenFiles, null, context.subscriptions);
-
     
     
 
@@ -55,16 +41,8 @@ export function activate(context: vscode.ExtensionContext) {
             name: terminalName,
             location: { viewColumn: vscode.ViewColumn.Beside }
         });
-        gooseTerminal.sendText(defaultCommand);
+        gooseTerminal.sendText(defaultCommand + '\n\n');
 
-        setTimeout(() => {
-            gooseTerminal?.sendText('\n');
-
-            // Initial update of open files
-            updateOpenFiles();
-            gooseTerminal?.sendText(initialPrompt);  
-        }, 4000);
-        
         gooseTerminal.show();
     });
     context.subscriptions.push(openTerminalDisposable);
