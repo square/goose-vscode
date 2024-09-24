@@ -1,6 +1,6 @@
 {
   "name": "goose-vscode",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "publisher": "michaelneale",
   "icon": "goose-icon.png",
   "main": "./out/extension.js",
@@ -13,7 +13,7 @@
   "keywords": [],
   "author": "",
   "license": "Apache-2.0",
-  "description": "Goose is a programming agent that runs on your machine. You need goose-ai package installed for this to work. goose: https://github.com/square/goose",
+  "description": "This is Goose is a programming agent that runs on your machine. Consider this extension experimental at this stage. You need goose-ai package installed for this to work. goose: https://github.com/square/goose",
   "devDependencies": {
     "@types/node": "^22.3.0",
     "@types/vscode": "^1.91.0",
