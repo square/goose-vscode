@@ -11,8 +11,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Check if goose CLI is installed
     const config = vscode.workspace.getConfiguration('goose');
-    let defaultCommand = config.get('defaultCommand', "goose session start");
-    
+    let defaultCommand = config.get('defaultCommand', "goose session start");    
     try {
         execSync('goose version');
     } catch (error) {
@@ -29,12 +28,11 @@ export function activate(context: vscode.ExtensionContext) {
     let getTerminal = () => {
         if (!gooseTerminal || gooseTerminal.exitStatus !== undefined) {
            gooseTerminal = vscode.window.createTerminal({
-                name: terminalName,
+                name: terminalName,            
                 location: { viewColumn: vscode.ViewColumn.Beside },
                 message: 'Loading Goose Session...', // Add a message to make it clear what terminal is for                
             });            
             gooseTerminal.sendText(defaultCommand);
-
         }
 
         console.log('Goose terminal created:', gooseTerminal.name);
@@ -43,7 +41,6 @@ export function activate(context: vscode.ExtensionContext) {
         return gooseTerminal
 
     }
-
     
     
     let sendToGooseDisposable = vscode.commands.registerCommand('extension.sendToGoose', async () => {
