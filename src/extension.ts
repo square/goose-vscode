@@ -6,50 +6,46 @@ import { execSync } from 'child_process';
 
 let gooseTerminal: vscode.Terminal | undefined;
 const terminalName = '🪿 goose chat 🪿';
-const tempFilePath = path.join(os.tmpdir(), 'goose_open_files.txt');
-const tempFilePathDirty = path.join(os.tmpdir(), 'goose_unsaved_files.txt');
-const FALLBACK_COMMAND = "goose session start"
 
 export function activate(context: vscode.ExtensionContext) {
-    
 
     // Check if goose CLI is installed
     const config = vscode.workspace.getConfiguration('goose');
-    let defaultCommand = config.get('defaultCommand', FALLBACK_COMMAND);
+    let defaultCommand = config.get('defaultCommand', "goose session start");
     
     try {
-        execSync('goose');
+        execSync('goose version');
     } catch (error) {
         try {
-            execSync('sq');
-            if (defaultCommand == FALLBACK_COMMAND) {
-                defaultCommand = 'sq goose session start'
-            }            
+            execSync('sq goose version');
+            defaultCommand = 'sq goose session start \n\n'                        
         } catch (error) {
             vscode.window.showWarningMessage('If goose isn\'t working, please check the goose command line tool is installed and working.');
         }
     }
     
-    vscode.window.showInformationMessage('goose agent starting, this may take a minute.. ⏰');
+    vscode.window.showInformationMessage('goose agent starting, this may take a minute.. ⏰');    
 
+    let getTerminal = () => {
+        if (!gooseTerminal || gooseTerminal.exitStatus !== undefined) {
+           gooseTerminal = vscode.window.createTerminal({
+                name: terminalName,
+                location: { viewColumn: vscode.ViewColumn.Beside },
+                message: 'Loading Goose Session...', // Add a message to make it clear what terminal is for                
+            });            
+            gooseTerminal.sendText(defaultCommand);
+
+        }
+
+        console.log('Goose terminal created:', gooseTerminal.name);
+        gooseTerminal.show(); // Delayed terminal show
+        
+        return gooseTerminal
+
+    }
 
     
     
-
-    let openTerminalDisposable = vscode.commands.registerCommand('extension.openGooseTerminal', () => {
-        gooseTerminal = vscode.window.createTerminal({
-            name: terminalName,
-            location: { viewColumn: vscode.ViewColumn.Beside }
-        });
-        gooseTerminal.sendText(defaultCommand + '\n\n');
-
-        gooseTerminal.show();
-    });
-    context.subscriptions.push(openTerminalDisposable);
-
-    // Automatically open the terminal when the extension activates
-    vscode.commands.executeCommand('extension.openGooseTerminal');
-
     let sendToGooseDisposable = vscode.commands.registerCommand('extension.sendToGoose', async () => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
@@ -85,8 +81,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         }
         editor.document.save();
-        gooseTerminal?.sendText(textToAskGoose);
-        gooseTerminal?.show();
+        getTerminal().sendText(textToAskGoose);
     });
     
     context.subscriptions.push(sendToGooseDisposable);
@@ -156,9 +151,8 @@ export function activate(context: vscode.ExtensionContext) {
 
         document.save();
 
-        gooseTerminal?.sendText(`There is some unfinished code at line: ${startLine} in file: ${filePath}. ` + 
+        getTerminal().sendText(`There is some unfinished code at line: ${startLine} in file: ${filePath}. ` + 
                                 `Complete the code based on the context, from that line onwards. Do not delete content.`);
-        gooseTerminal?.show();
     });
     context.subscriptions.push(askGooseToFinishItCommand);
 
@@ -175,17 +169,10 @@ export function activate(context: vscode.ExtensionContext) {
 
         document.save();
 
-        gooseTerminal?.sendText(`Can you look at the code on line: ${startLine} in file: ${filePath}. ` + 
-                                `and fix any problems you see on this line and near it. Try not to delete content.`);
-        gooseTerminal?.show();
+        getTerminal().sendText(`Can you look at the code on line: ${startLine} in file: ${filePath}. ` + 
+                                `and fix any problems you see on this line and near it. Try not to delete content.`);        
     });
     context.subscriptions.push(askGooseToFix);    
 
 }
 
-export function deactivate() {
-    if (gooseTerminal) {
-        gooseTerminal.sendText('exit');
-        gooseTerminal.dispose();
-    }
-}
