@@ -48,7 +48,121 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(openTerminalDisposable);
         
         // Automatically open the terminal when the extension activates
+    let disposable = vscode.commands.registerCommand('extension.openSidepanel', () => {
+        SidePanel.createOrShow(context.extensionPath);
+    });
+    context.subscriptions.push(disposable);
+
+    class SidePanel {
+        public static currentPanel: SidePanel | undefined;
+        private readonly _panel: vscode.WebviewPanel;
+        private readonly _extensionPath: string;
+        private _disposables: vscode.Disposable[] = [];
+
+        public static createOrShow(extensionPath: string) {
+            if (SidePanel.currentPanel) {
+                SidePanel.currentPanel._panel.reveal(vscode.ViewColumn.Beside);
+                return;
+            }
+
+            const panel = vscode.window.createWebviewPanel(
+                'sidepanel',
+                'Markdown Sidepanel',
+                vscode.ViewColumn.Beside,
+                {
+                    enableScripts: true,
+                    localResourceRoots: [vscode.Uri.file(path.join(extensionPath, 'media'))]
+                }
+            );
+
+            SidePanel.currentPanel = new SidePanel(panel, extensionPath);
+        }
+
+        private constructor(panel: vscode.WebviewPanel, extensionPath: string) {
+            this._panel = panel;
+            this._extensionPath = extensionPath;
+
+            this._update();
+
+            this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
+            this._panel.webview.onDidReceiveMessage(
+                message => {
+                    switch (message.command) {
+                        case 'submitInput':
+                            vscode.window.showInformationMessage(`User Input: ${message.text}`);
+                            return;
+                    }
+                },
+                null,
+                this._disposables
+            );
+        }
+
+        public dispose() {
+            SidePanel.currentPanel = undefined;
+
+            this._panel.dispose();
+
+            while (this._disposables.length) {
+                const disposable = this._disposables.pop();
+                if (disposable) {
+                    disposable.dispose();
+                }
+            }
+        }
+
+        private _update() {
+            this._panel.webview.html = this._getHtmlForWebview();
+        }
+
+        private _getHtmlForWebview() {
+            const markdownContent = `
+# Welcome to the Sidepanel
+
+This is a static markdown content displayed in the webview.
+
+- Item 1
+- Item 2
+- Item 3
+
+`;
+
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sidepanel</title>
+    <style>
+        body { font-family: sans-serif; padding: 10px; }
+        #inputContainer { margin-top: 20px; }
+        #userInput { width: 100%; padding: 5px; }
+    </style>
+</head>
+<body>
+    <div id="markdownContent">
+        ${markdownContent}
+    </div>
+    <div id="inputContainer">
+        <input type="text" id="userInput" placeholder="Enter your input here" />
+    </div>
+    <script>
+        const vscode = acquireVsCodeApi();
+
+        document.getElementById('userInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const text = e.target.value;
+                vscode.postMessage({ command: 'submitInput', text: text });
+                e.target.value = '';
+            }
+        });
+    </script>
+</body>
+</html>`;
+        }
+    }
+
     vscode.commands.executeCommand('extension.openGooseTerminal');
+    vscode.commands.executeCommand('extension.openSidepanel');
     
     
     let sendToGooseDisposable = vscode.commands.registerCommand('extension.sendToGoose', async () => {

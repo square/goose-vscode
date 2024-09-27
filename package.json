@@ -31,6 +31,7 @@
     "url": "https://github.com/square/goose-vscode"
   },
   "activationEvents": [
+        "onCommand:extension.openSidepanel",
     "*"
   ],
   "contributes": {
@@ -46,6 +47,10 @@
       }
     },
     "commands": [
+      {
+        "command": "extension.openSidepanel",
+        "title": "Open Markdown Sidepanel"
+      },
       {
         "command": "extension.sendToGoose",
         "title": "🪿 Ask Goose 🪿"
