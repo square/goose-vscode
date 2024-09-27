@@ -41,6 +41,14 @@ export function activate(context: vscode.ExtensionContext) {
         return gooseTerminal
 
     }
+
+    let openTerminalDisposable = vscode.commands.registerCommand('extension.openGooseTerminal', () => {
+        getTerminal();
+    });
+    context.subscriptions.push(openTerminalDisposable);
+        
+        // Automatically open the terminal when the extension activates
+    vscode.commands.executeCommand('extension.openGooseTerminal');
     
     
     let sendToGooseDisposable = vscode.commands.registerCommand('extension.sendToGoose', async () => {
