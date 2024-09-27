@@ -17,7 +17,7 @@ export function activate(context: vscode.ExtensionContext) {
     } catch (error) {
         try {
             execSync('sq goose version');
-            defaultCommand = 'sq goose session start \n\n'                        
+            defaultCommand = 'sq goose session start'                        
         } catch (error) {
             vscode.window.showWarningMessage('If goose isn\'t working, please check the goose command line tool is installed and working.');
         }
