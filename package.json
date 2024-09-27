@@ -1,6 +1,6 @@
 {
   "name": "goose-vscode",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "publisher": "michaelneale",
   "icon": "goose-icon.png",
   "main": "./out/extension.js",
@@ -18,7 +18,7 @@
     "@types/node": "^22.3.0",
     "@types/vscode": "^1.91.0",
     "typescript": "^5.5.4",
-    "vsce": "^2.7.0"
+    "vsce": "^2.15.0"
   },
   "dependencies": {
     "@vscode/l10n": "^0.0.18"
@@ -46,10 +46,6 @@
       }
     },
     "commands": [
-      {
-        "command": "extension.openGooseTerminal",
-        "title": "Open Goose Terminal"
-      },
       {
         "command": "extension.sendToGoose",
         "title": "🪿 Ask Goose 🪿"
