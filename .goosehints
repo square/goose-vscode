@@ -1,0 +1,6 @@
+This is a vscode extension for goose.
+It has src/extension.ts where most of the action is.
+
+run npm test after making changes.  
+read README.md and package.json. 
+
