@@ -148,10 +148,10 @@ This is a static markdown content displayed in the webview.
     <meta charset="UTF-8">
     <title>Sidepanel</title>
     <style>
-        body { font-family: sans-serif; padding: 10px; }
-        #inputContainer { margin-top: 20px; }
+        body { font-family: 'Courier New', monospace; padding: 10px; background-color: #222; color: #ccc; }
+        #inputContainer { position: fixed; bottom: 0; width: 100%; background-color: #333; padding: 10px; }
         #userInput { width: 100%; padding: 5px; }
-        #outputContainer { margin-top: 20px; white-space: pre-wrap; background-color: #f0f0f0; padding: 10px; border-radius: 4px; }
+        #outputContainer { margin-top: 20px; height: 300px; overflow-y: auto; white-space: pre-wrap; background-color: #333; color: #ccc; padding: 10px; border-radius: 4px; }
     </style>
 </head>
 <body>
