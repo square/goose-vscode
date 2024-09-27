@@ -27,9 +27,20 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Start goose process in hidden mode
     let startGooseProcess = () => {
-        gooseProcess = spawn(defaultCommand, {
+        const workspaceFolders = vscode.workspace.workspaceFolders;
+let workspacePath: string | undefined;
+
+if (workspaceFolders && workspaceFolders.length > 0) {
+    workspacePath = workspaceFolders[0].uri.fsPath;
+} else {
+    vscode.window.showErrorMessage("No workspace folder is open.");
+    return;
+}
+
+gooseProcess = spawn(defaultCommand, {
             shell: true,
-            stdio: ['pipe', 'pipe', 'pipe']
+            stdio: ['pipe', 'pipe', 'pipe'],
+            cwd: workspacePath
         });
         if (gooseProcess.stdout) {
             gooseProcess.stdout.on('data', (data) => {
