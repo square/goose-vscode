@@ -154,7 +154,7 @@ gooseProcess = spawn(defaultCommand, {
         body { font-family: 'Courier New', monospace; padding: 10px; background-color: #222; color: #ccc; }
         #inputContainer { position: fixed; bottom: 0; width: 100%; background-color: #333; padding: 10px; }
         #userInput { width: 100%; padding: 5px; }
-        #outputContainer { margin-top: 20px; height: 300px; overflow-y: auto; white-space: pre-wrap; background-color: #333; color: #ccc; padding: 10px; border-radius: 4px; }
+        #outputContainer { position: fixed; top: 0; bottom: 50px; overflow-y: auto; white-space: pre-wrap; background-color: #333; color: #ccc; padding: 10px; border-radius: 4px; width: 100%; }
     </style>
 </head>
 <body>
