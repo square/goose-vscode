@@ -2,10 +2,10 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { execSync } from 'child_process';
+import { execSync, spawn, ChildProcess } from 'child_process';
 
-let gooseTerminal: vscode.Terminal | undefined;
-const terminalName = '🪿 goose chat 🪿';
+let gooseProcess: ChildProcess | undefined;
+const terminalName = '';
 
 export function activate(context: vscode.ExtensionContext) {
 
@@ -17,37 +17,44 @@ export function activate(context: vscode.ExtensionContext) {
     } catch (error) {
         try {
             execSync('sq goose version');
-            defaultCommand = 'sq goose session start'                        
+            defaultCommand = 'sq goose session start';                        
         } catch (error) {
-            vscode.window.showWarningMessage('If goose isn\'t working, please check the goose command line tool is installed and working.');
+            vscode.window.showWarningMessage(`If goose isn't working, please check the goose command line tool is installed and working.`);
         }
     }
     
-    vscode.window.showInformationMessage('goose agent starting, this may take a minute.. ⏰');    
+    vscode.window.showInformationMessage('goose agent starting, this may take a minute.. ');
 
-    let getTerminal = () => {
-        if (!gooseTerminal || gooseTerminal.exitStatus !== undefined) {
-           gooseTerminal = vscode.window.createTerminal({
-                name: terminalName,            
-                location: { viewColumn: vscode.ViewColumn.Beside },
-                message: 'Loading Goose Session...', // Add a message to make it clear what terminal is for                
-            });            
-            gooseTerminal.sendText(defaultCommand);
+    // Start goose process in hidden mode
+    let startGooseProcess = () => {
+        gooseProcess = spawn(defaultCommand, {
+            shell: true,
+            stdio: ['pipe', 'pipe', 'pipe']
+        });
+        if (gooseProcess.stdout) {
+            gooseProcess.stdout.on('data', (data) => {
+                let output = data.toString();
+                SidePanel.postMessage({ type: 'terminalOutput', text: output });
+            });
         }
-
-        console.log('Goose terminal created:', gooseTerminal.name);
-        gooseTerminal.show(); // Delayed terminal show
-        
-        return gooseTerminal
-
+        if (gooseProcess.stderr) {
+            gooseProcess.stderr.on('data', (data) => {
+                let errorOutput = data.toString();
+                SidePanel.postMessage({ type: 'terminalOutput', text: errorOutput });
+            });
+        }
+        if (gooseProcess.stdin) {
+            gooseProcess.on('close', (code) => {
+                console.log(`Goose process exited with code ${code}`);
+                SidePanel.postMessage({ type: 'terminalOutput', text: `Goose process exited with code ${code}` });
+            });
+        }
     }
 
-    let openTerminalDisposable = vscode.commands.registerCommand('extension.openGooseTerminal', () => {
-        getTerminal();
-    });
-    context.subscriptions.push(openTerminalDisposable);
-        
-        // Automatically open the terminal when the extension activates
+    // Start the process on activation
+    startGooseProcess();
+
+    // Register the command to open the sidepanel
     let disposable = vscode.commands.registerCommand('extension.openSidepanel', () => {
         SidePanel.createOrShow(context.extensionPath);
     });
@@ -58,6 +65,12 @@ export function activate(context: vscode.ExtensionContext) {
         private readonly _panel: vscode.WebviewPanel;
         private readonly _extensionPath: string;
         private _disposables: vscode.Disposable[] = [];
+
+        public static postMessage(message: any) {
+            if (SidePanel.currentPanel) {
+                SidePanel.currentPanel._panel.webview.postMessage(message);
+            }
+        }
 
         public static createOrShow(extensionPath: string) {
             if (SidePanel.currentPanel) {
@@ -89,7 +102,9 @@ export function activate(context: vscode.ExtensionContext) {
                 message => {
                     switch (message.command) {
                         case 'submitInput':
-                            vscode.window.showInformationMessage(`User Input: ${message.text}`);
+                            if (gooseProcess && gooseProcess.stdin) {
+                                gooseProcess.stdin.write(message.text + '\n');
+                            }
                             return;
                     }
                 },
@@ -136,17 +151,32 @@ This is a static markdown content displayed in the webview.
         body { font-family: sans-serif; padding: 10px; }
         #inputContainer { margin-top: 20px; }
         #userInput { width: 100%; padding: 5px; }
+        #outputContainer { margin-top: 20px; white-space: pre-wrap; background-color: #f0f0f0; padding: 10px; border-radius: 4px; }
     </style>
 </head>
 <body>
     <div id="markdownContent">
-        ${markdownContent}
+        ${markdownContent.replace(/`/g, '\`')}
+    </div>
+    <div id="outputContainer">
+        <h3>Goose Output:</h3>
+        <div id="gooseOutput"></div>
     </div>
     <div id="inputContainer">
         <input type="text" id="userInput" placeholder="Enter your input here" />
     </div>
     <script>
         const vscode = acquireVsCodeApi();
+
+        window.addEventListener('message', event => {
+            const message = event.data; // The JSON data sent by the extension
+            switch (message.type) {
+                case 'terminalOutput':
+                    const outputDiv = document.getElementById('gooseOutput');
+                    outputDiv.textContent += message.text;
+                    break;
+            }
+        });
 
         document.getElementById('userInput').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
@@ -163,135 +193,12 @@ This is a static markdown content displayed in the webview.
 
     vscode.commands.executeCommand('extension.openGooseTerminal');
     vscode.commands.executeCommand('extension.openSidepanel');
-    
-    
-    let sendToGooseDisposable = vscode.commands.registerCommand('extension.sendToGoose', async () => {
-        const editor = vscode.window.activeTextEditor;
-        if (!editor) {
-            return;
-        }
 
-        // Get the selected text
-        const selection = editor.selection;
-
-        // Get the file path and selection range
-        const filePath = editor.document.uri.fsPath;
-        const startLine = selection.start.line + 1; // Line numbers are 1-based for better readability
-        const endLine = selection.end.line + 1;
-
-        // Prompt the user for a question
-        const question = await vscode.window.showInputBox({ prompt: 'Ask goose something:' });
-        if (!question) {
-            return;
-        }
-        
-        const selectedText = editor.document.getText(selection);
-        const hasSelectedText = selectedText.trim().length > 0;
-        let textToAskGoose = question;
-        if (hasSelectedText) {
-            // There is some selected test
-            textToAskGoose = `Looking at file: ${filePath} regarding lines: ${startLine} to ${endLine}` +
-                             ` please load fhe file, answer this question: [${question}].` + 
-                             ` Note: If editing is required, keep edits around these lines and don't delete or modify unrelated code.`
-        } else {
-            // cursor is just position in file
-            textToAskGoose = `Looking at file: ${filePath} around line: ${startLine}, ` +
-                            ` Please answer the query: [${question}] `                            
-
-        }
-        editor.document.save();
-        getTerminal().sendText(textToAskGoose);
-    });
-    
-    context.subscriptions.push(sendToGooseDisposable);
-
-    // Register code lens provider
-    vscode.languages.registerCodeLensProvider('*', {
-        provideCodeLenses(document: vscode.TextDocument, token: vscode.CancellationToken) {
-            const editor = vscode.window.activeTextEditor;
-            if (!editor) {
-                return [];
-            }
-            const codeLens = new vscode.CodeLens(editor.selection, {
-                command: 'extension.sendToGoose',
-                title: '🪿 Ask Goose 🪿'
-            });
-            return [codeLens];
-        }
-    });
-
-    // Completion suggestion: ask Goose to finish it
-    vscode.languages.registerCodeActionsProvider('*', {
-        provideCodeActions(document: vscode.TextDocument, range: vscode.Range, context: vscode.CodeActionContext, token: vscode.CancellationToken) {            
-            const codeAction = new vscode.CodeAction('Ask Goose to fix it', vscode.CodeActionKind.QuickFix);
-            codeAction.command = { command: 'extension.askGooseToFinishIt', title: 'Ask Goose to fix it' };
-            return [codeAction];
-        }
-    });
-
-    
-    // Register inline completion provider
-    vscode.languages.registerInlineCompletionItemProvider('*', {
-        provideInlineCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-            const editor = vscode.window.activeTextEditor;
-            if (!editor) {
-                return;
-            }
-
-            const completionItem = new vscode.InlineCompletionItem('Ask Goose to complete this code');
-            completionItem.insertText = '';
-            completionItem.command = { command: 'extension.askGooseToFinishIt', title: 'Ask Goose to complete this code' };
-            return [completionItem];
-        }
-    });
-
-    // Register content completion extension
-    vscode.languages.registerCompletionItemProvider('*', {
-        provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-            const completionItem = new vscode.CompletionItem('Ask Goose to finish this code', vscode.CompletionItemKind.Snippet);
-            completionItem.insertText = '';
-            completionItem.command = { command: 'extension.askGooseToFinishIt', title: 'Ask Goose to finish this code' };
-            return [completionItem];
-        }
-    }, '.');
-  
-
-
-    const askGooseToFinishItCommand = vscode.commands.registerCommand('extension.askGooseToFinishIt', async () => {
-        const editor = vscode.window.activeTextEditor;
-        if (!editor) {
-            return;
-        }
-
-        const document = editor.document;
-        const selection = editor.selection;
-        const filePath = document.uri.fsPath;
-        const startLine = selection.start.line + 1;
-
-        document.save();
-
-        getTerminal().sendText(`There is some unfinished code at line: ${startLine} in file: ${filePath}. ` + 
-                                `Complete the code based on the context, from that line onwards. Do not delete content.`);
-    });
-    context.subscriptions.push(askGooseToFinishItCommand);
-
-    const askGooseToFix = vscode.commands.registerCommand('extension.askGooseToFix', async () => {
-        const editor = vscode.window.activeTextEditor;
-        if (!editor) {
-            return;
-        }
-
-        const document = editor.document;
-        const selection = editor.selection;
-        const filePath = document.uri.fsPath;
-        const startLine = selection.start.line + 1;
-
-        document.save();
-
-        getTerminal().sendText(`Can you look at the code on line: ${startLine} in file: ${filePath}. ` + 
-                                `and fix any problems you see on this line and near it. Try not to delete content.`);        
-    });
-    context.subscriptions.push(askGooseToFix);    
-
+    context.subscriptions.push(disposable);
 }
 
+export function deactivate() {
+    if (gooseProcess) {
+        gooseProcess.kill();
+    }
+}
