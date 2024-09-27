@@ -80,7 +80,7 @@ export function activate(context: vscode.ExtensionContext) {
 
             const panel = vscode.window.createWebviewPanel(
                 'sidepanel',
-                'Markdown Sidepanel',
+                '🪿 Ask Goose 🪿',
                 vscode.ViewColumn.Beside,
                 {
                     enableScripts: true,
@@ -132,14 +132,6 @@ export function activate(context: vscode.ExtensionContext) {
 
         private _getHtmlForWebview() {
             const markdownContent = `
-# Welcome to the Sidepanel
-
-This is a static markdown content displayed in the webview.
-
-- Item 1
-- Item 2
-- Item 3
-
 `;
 
             return `<!DOCTYPE html>
