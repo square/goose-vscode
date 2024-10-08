@@ -105,6 +105,16 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
+    // Completion suggestion: ask Goose to explain it
+    vscode.languages.registerCodeActionsProvider('*', {
+        provideCodeActions(document: vscode.TextDocument, range: vscode.Range, context: vscode.CodeActionContext, token: vscode.CancellationToken) {            
+            const codeAction = new vscode.CodeAction('Ask goose to explain it', vscode.CodeActionKind.QuickFix);
+            codeAction.command = { command: 'extension.askGooseToExplainIt', title: 'Ask goose to explain it' };
+            return [codeAction];
+        }
+    });
+
+
     // Completion suggestion: ask Goose to finish it
     vscode.languages.registerCodeActionsProvider('*', {
         provideCodeActions(document: vscode.TextDocument, range: vscode.Range, context: vscode.CodeActionContext, token: vscode.CancellationToken) {            
@@ -113,6 +123,7 @@ export function activate(context: vscode.ExtensionContext) {
             return [codeAction];
         }
     });
+
 
     
     // Register inline completion provider
@@ -159,6 +170,24 @@ export function activate(context: vscode.ExtensionContext) {
                                 `Complete the code based on the context, from that line onwards. Do not delete content.`);
     });
     context.subscriptions.push(askGooseToFinishItCommand);
+
+    const askGooseToExplainItCommand = vscode.commands.registerCommand('extension.askGooseToExplainIt', async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            return;
+        }
+
+        const document = editor.document;
+        const selection = editor.selection;
+        const filePath = document.uri.fsPath;
+        const startLine = selection.start.line + 1;
+
+        document.save();
+
+        getTerminal().sendText(`Explain the code on line: ${startLine} in file: ${filePath}. `);
+                                
+    });
+    context.subscriptions.push(askGooseToExplainItCommand);
 
     const askGooseToFix = vscode.commands.registerCommand('extension.askGooseToFix', async () => {
         const editor = vscode.window.activeTextEditor;
