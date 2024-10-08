@@ -9,6 +9,7 @@ const terminalName = '🪿 goose chat 🪿';
 
 export function activate(context: vscode.ExtensionContext) {
 
+
     // Check if goose CLI is installed
     const config = vscode.workspace.getConfiguration('goose');
     let defaultCommand = config.get('defaultCommand', "goose session start");    
