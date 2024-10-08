@@ -9,6 +9,7 @@ const terminalName = '🪿 goose chat 🪿';
 
 export function activate(context: vscode.ExtensionContext) {
 
+
     // Check if goose CLI is installed
     const config = vscode.workspace.getConfiguration('goose');
     let defaultCommand = config.get('defaultCommand', "goose session start");    
@@ -29,7 +30,6 @@ export function activate(context: vscode.ExtensionContext) {
         if (!gooseTerminal || gooseTerminal.exitStatus !== undefined) {
            gooseTerminal = vscode.window.createTerminal({
                 name: terminalName,            
-                location: { viewColumn: vscode.ViewColumn.Beside },
                 message: 'Loading Goose Session...', // Add a message to make it clear what terminal is for                
             });            
             gooseTerminal.sendText(defaultCommand);
@@ -106,14 +106,25 @@ export function activate(context: vscode.ExtensionContext) {
         }
     });
 
-    // Completion suggestion: ask Goose to finish it
+    // Completion suggestion: ask Goose to explain it
     vscode.languages.registerCodeActionsProvider('*', {
         provideCodeActions(document: vscode.TextDocument, range: vscode.Range, context: vscode.CodeActionContext, token: vscode.CancellationToken) {            
-            const codeAction = new vscode.CodeAction('Ask Goose to fix it', vscode.CodeActionKind.QuickFix);
-            codeAction.command = { command: 'extension.askGooseToFinishIt', title: 'Ask Goose to fix it' };
+            const codeAction = new vscode.CodeAction('Ask goose to explain it', vscode.CodeActionKind.QuickFix);
+            codeAction.command = { command: 'extension.askGooseToExplainIt', title: 'Ask goose to explain it' };
             return [codeAction];
         }
     });
+
+
+    // Completion suggestion: ask Goose to finish it
+    vscode.languages.registerCodeActionsProvider('*', {
+        provideCodeActions(document: vscode.TextDocument, range: vscode.Range, context: vscode.CodeActionContext, token: vscode.CancellationToken) {            
+            const codeAction = new vscode.CodeAction('Ask goose to fix it', vscode.CodeActionKind.QuickFix);
+            codeAction.command = { command: 'extension.askGooseToFix', title: 'Ask goose to fix it' };
+            return [codeAction];
+        }
+    });
+
 
     
     // Register inline completion provider
@@ -124,9 +135,9 @@ export function activate(context: vscode.ExtensionContext) {
                 return;
             }
 
-            const completionItem = new vscode.InlineCompletionItem('Ask Goose to complete this code');
+            const completionItem = new vscode.InlineCompletionItem('complete with goose');
             completionItem.insertText = '';
-            completionItem.command = { command: 'extension.askGooseToFinishIt', title: 'Ask Goose to complete this code' };
+            completionItem.command = { command: 'extension.askGooseToFinishIt', title: 'complete with goose' };
             return [completionItem];
         }
     });
@@ -134,7 +145,7 @@ export function activate(context: vscode.ExtensionContext) {
     // Register content completion extension
     vscode.languages.registerCompletionItemProvider('*', {
         provideCompletionItems(document: vscode.TextDocument, position: vscode.Position) {
-            const completionItem = new vscode.CompletionItem('Ask Goose to finish this code', vscode.CompletionItemKind.Snippet);
+            const completionItem = new vscode.CompletionItem('Ask Goose to finish this code', vscode.CompletionItemKind.Text);
             completionItem.insertText = '';
             completionItem.command = { command: 'extension.askGooseToFinishIt', title: 'Ask Goose to finish this code' };
             return [completionItem];
@@ -160,6 +171,24 @@ export function activate(context: vscode.ExtensionContext) {
                                 `Complete the code based on the context, from that line onwards. Do not delete content.`);
     });
     context.subscriptions.push(askGooseToFinishItCommand);
+
+    const askGooseToExplainItCommand = vscode.commands.registerCommand('extension.askGooseToExplainIt', async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            return;
+        }
+
+        const document = editor.document;
+        const selection = editor.selection;
+        const filePath = document.uri.fsPath;
+        const startLine = selection.start.line + 1;
+
+        document.save();
+
+        getTerminal().sendText(`Explain the code on line: ${startLine} in file: ${filePath}. `);
+                                
+    });
+    context.subscriptions.push(askGooseToExplainItCommand);
 
     const askGooseToFix = vscode.commands.registerCommand('extension.askGooseToFix', async () => {
         const editor = vscode.window.activeTextEditor;

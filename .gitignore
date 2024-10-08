@@ -5,3 +5,4 @@ out/
 *.tsbuildinfo
 package-lock.json
 *.vsix
+synopsis.md
