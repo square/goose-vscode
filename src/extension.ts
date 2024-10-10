@@ -91,21 +91,27 @@ export function activate(context: vscode.ExtensionContext) {
     
     context.subscriptions.push(sendToGooseDisposable);
 
+    
     // Register code lens provider
     vscode.languages.registerCodeLensProvider('*', {
         provideCodeLenses(document: vscode.TextDocument, token: vscode.CancellationToken) {
             const editor = vscode.window.activeTextEditor;
             if (!editor) {
                 return [];
-            }
-            const codeLens = new vscode.CodeLens(editor.selection, {
+            }            
+            // Check for a blank line above the selection
+            const line = editor.selection.start.line - 1;
+            if (line < 0 || document.lineAt(line).isEmptyOrWhitespace) {
+                const codeLens = new vscode.CodeLens(editor.selection, {
                 command: 'extension.sendToGoose',
                 title: '🪿 Ask Goose 🪿'
             });
             return [codeLens];
         }
+        return [];
+    }
     });
-
+    
     // Completion suggestion: ask Goose to explain it
     vscode.languages.registerCodeActionsProvider('*', {
         provideCodeActions(document: vscode.TextDocument, range: vscode.Range, context: vscode.CodeActionContext, token: vscode.CancellationToken) {            
