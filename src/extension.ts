@@ -5,10 +5,9 @@ import * as path from 'path';
 import { execSync } from 'child_process';
 
 let gooseTerminal: vscode.Terminal | undefined;
-const terminalName = '🪿 goose chat 🪿';
+const terminalName = '\u2728 goose chat \u2728';
 
 export function activate(context: vscode.ExtensionContext) {
-
 
     // Check if goose CLI is installed
     const config = vscode.workspace.getConfiguration('goose');
@@ -87,31 +86,30 @@ export function activate(context: vscode.ExtensionContext) {
         }
         editor.document.save();
         getTerminal().sendText(textToAskGoose);
+
+        // Check config for opening diff editor after Goose edits
+        const openDiffAfterEdit = config.get('openDiffEditorAfterGooseEdits', false);
+        if (openDiffAfterEdit) {
+            // Watch for changes in the active text editor
+            const watcher = vscode.workspace.createFileSystemWatcher(filePath);
+            watcher.onDidChange(() => {
+                vscode.commands.executeCommand('workbench.view.scm');
+                watcher.dispose(); // Stop watching after opening SCM view
+            });
+        }
     });
     
     context.subscriptions.push(sendToGooseDisposable);
 
-    
-    // Register code lens provider
-    vscode.languages.registerCodeLensProvider('*', {
-        provideCodeLenses(document: vscode.TextDocument, token: vscode.CancellationToken) {
-            const editor = vscode.window.activeTextEditor;
-            if (!editor) {
-                return [];
-            }            
-            // Check for a blank line above the selection
-            const line = editor.selection.start.line - 1;
-            if (line < 0 || document.lineAt(line).isEmptyOrWhitespace) {
-                const codeLens = new vscode.CodeLens(editor.selection, {
-                command: 'extension.sendToGoose',
-                title: '🪿 Ask Goose 🪿'
-            });
-            return [codeLens];
+    // Completion suggestion: ask goose (general) d
+    vscode.languages.registerCodeActionsProvider('*', {
+        provideCodeActions(document: vscode.TextDocument, range: vscode.Range, context: vscode.CodeActionContext, token: vscode.CancellationToken) {            
+            const codeAction = new vscode.CodeAction('Ask goose to edit', vscode.CodeActionKind.QuickFix);
+            codeAction.command = { command: 'extension.sendToGoose', title: 'Ask goose to edit it' };
+            return [codeAction];
         }
-        return [];
-    }
     });
-    
+
     // Completion suggestion: ask Goose to explain it
     vscode.languages.registerCodeActionsProvider('*', {
         provideCodeActions(document: vscode.TextDocument, range: vscode.Range, context: vscode.CodeActionContext, token: vscode.CancellationToken) {            
@@ -120,6 +118,7 @@ export function activate(context: vscode.ExtensionContext) {
             return [codeAction];
         }
     });
+
 
 
     // Completion suggestion: ask Goose to finish it
@@ -215,4 +214,5 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(askGooseToFix);    
 
 }
+
 

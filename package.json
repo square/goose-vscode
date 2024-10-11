@@ -1,6 +1,6 @@
 {
   "name": "goose-vscode",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "publisher": "michaelneale",
   "icon": "goose-icon.png",
   "main": "./out/extension.js",
@@ -42,6 +42,11 @@
           "type": "string",
           "default": "goose session start",
           "description": "Default command to be executed in Goose terminal."
+        },
+        "goose.openDiffEditorAfterGooseEdits": {
+          "type": "boolean",
+          "default": false,
+          "description": "Open the diff editor after Goose has made edits."
         }
       }
     },
