@@ -81,8 +81,7 @@ export function activate(context: vscode.ExtensionContext) {
                              ` Note: If editing is required, keep edits around these lines and don't delete or modify unrelated code.`
         } else {
             // cursor is just position in file
-            textToAskGoose = `Looking at file: ${filePath} around line: ${startLine}, ` +
-                            ` Please answer the query: [${question}] `                            
+            textToAskGoose = `Please answer the query: [${question}] `                            
 
         }
         editor.document.save();
