@@ -1,6 +1,6 @@
 {
   "name": "goose-vscode",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "publisher": "michaelneale",
   "icon": "goose-icon.png",
   "main": "./out/extension.js",
@@ -53,7 +53,11 @@
     "commands": [
       {
         "command": "extension.sendToGoose",
-        "title": "🪿 Ask Goose 🪿"
+        "title": "🪿 ask goose 🪿"
+      },
+      {
+        "command": "extension.openGoose",
+        "title": "🪿 open goose 🪿"
       }
     ],
     "menus": {
