@@ -42,6 +42,11 @@ export function activate(context: vscode.ExtensionContext) {
 
     }
 
+    let openGooseTerminal = vscode.commands.registerCommand('extension.openGoose', () => {
+        getTerminal();
+    });
+    context.subscriptions.push(openGooseTerminal);
+
     let openTerminalDisposable = vscode.commands.registerCommand('extension.openGooseTerminal', () => {
         getTerminal();
     });
@@ -51,7 +56,15 @@ export function activate(context: vscode.ExtensionContext) {
     //vscode.commands.executeCommand('extension.openGooseTerminal');
     
     
-    let sendToGooseDisposable = vscode.commands.registerCommand('extension.sendToGoose', async () => {
+    function createTempFileWithLines(selectedText: string, startLine: number): string {
+    const selectedLines = selectedText.split('\n').map((line, index) => `${startLine + index}: ${line}`).join('\n');
+    const tempDir = os.tmpdir();
+    const tempFileName = path.join(tempDir, `goose_context_${Date.now()}.txt`);
+    fs.writeFileSync(tempFileName, selectedLines);
+    return tempFileName;
+}
+
+let sendToGooseDisposable = vscode.commands.registerCommand('extension.sendToGoose', async () => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
             return;
@@ -75,13 +88,16 @@ export function activate(context: vscode.ExtensionContext) {
         const hasSelectedText = selectedText.trim().length > 0;
         let textToAskGoose = question;
         if (hasSelectedText) {
-            // There is some selected test
-            textToAskGoose = `Looking at file: ${filePath} regarding lines: ${startLine} to ${endLine}` +
-                             ` please load fhe file, answer this question: [${question}].` + 
+            // There is some selected text
+            const tempFileName = createTempFileWithLines(selectedText, startLine);
+            textToAskGoose = `Looking at file: ${filePath} with context: ${tempFileName}.` +
+                             ` please load the file, answer this question: [${question}].` +
                              ` Note: If editing is required, keep edits around these lines and don't delete or modify unrelated code.`
         } else {
             // cursor is just position in file
-            textToAskGoose = `Please answer the query: [${question}] `                            
+            const cursorLine = editor.selection.active.line + 1;
+            textToAskGoose = `Looking at file: ${filePath}, you are on line ${cursorLine}. ` +
+                             `Please answer the query: [${question}]`                            
 
         }
         editor.document.save();
@@ -137,10 +153,12 @@ export function activate(context: vscode.ExtensionContext) {
         const filePath = document.uri.fsPath;
         const startLine = selection.start.line + 1;
 
+        const selectedText = document.getText(selection);
+        const tempFileName = createTempFileWithLines(selectedText, startLine);
         document.save();
 
-        getTerminal().sendText(`Can you look at the code on line: ${startLine} in file: ${filePath}. ` + 
-                                `and fix any problems you see on this line and near it. Try not to delete content.`);        
+        getTerminal().sendText(`Can you look at the code in file: ${filePath} with context: ${tempFileName}. ` +
+                                `and fix any problems you see around it. Try not to delete content.`);        
     });
     context.subscriptions.push(askGooseToFix);    
 
