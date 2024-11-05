@@ -12,15 +12,16 @@ export function activate(context: vscode.ExtensionContext) {
     // Check if goose CLI is installed
     const config = vscode.workspace.getConfiguration('goose');
     let defaultCommand = config.get('defaultCommand', "goose session start");    
-    try {
-        execSync('goose version');
-    } catch (error) {
+
+    if (defaultCommand.startsWith('goose ')) {
         try {
             execSync('sq goose version');
-            defaultCommand = 'sq goose session start'                        
+            defaultCommand = 'sq goose session start'
+            console.log("using sq: " + defaultCommand)
         } catch (error) {
-            vscode.window.showWarningMessage('If goose isn\'t working, please check the goose command line tool is installed and working.');
+            console.log("falling back to default " + defaultCommand)
         }
+    
     }
     
     
