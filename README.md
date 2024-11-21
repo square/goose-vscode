@@ -70,7 +70,7 @@ This is for if you want to enhance the extension or fix bugs.
 > [!TIP]
 > You don't usually need to run this from source unless you are working on this extension.
 
-Open this repo via `code .` and then press F5 to run a new workspace with this in it. 
+Open this repo via `code .`, open `src/extension.ts` and then press F5 to run a new workspace with this in it. 
 
 ### Packaging the Extension
 

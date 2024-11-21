@@ -15,13 +15,15 @@
   "license": "Apache-2.0",
   "description": "This is a vscode extension for goose: a programming agent that runs on your machine. Consider this extension experimental at this stage. You need goose-ai package installed for this to work. https://github.com/block-open-source/goose",
   "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^22.3.0",
     "@types/vscode": "^1.91.0",
     "typescript": "^5.5.4",
     "vsce": "^2.15.0"
   },
   "dependencies": {
-    "@vscode/l10n": "^0.0.18"
+    "@vscode/l10n": "^0.0.18",
+    "js-yaml": "^4.1.0"
   },
   "engines": {
     "vscode": "^1.91.1"
@@ -34,6 +36,29 @@
     "*"
   ],
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "profileManager",
+          "title": "Profile Manager",
+          "icon": "goose-icon.png"
+        }
+      ]
+    },
+    "views": {
+      "profileManager": [
+        {
+          "type": "webview",
+          "id": "profileFormView",
+          "name": "Profile Form"
+        },
+        {
+          "type": "tree",
+          "id": "profileExplorer",
+          "name": "Profiles"
+        }
+      ]
+    },
     "configuration": {
       "type": "object",
       "title": "Goose Settings",
@@ -58,6 +83,26 @@
       {
         "command": "extension.openGoose",
         "title": "🪿 open goose 🪿"
+      },
+      {
+        "command": "extension.refreshProfiles",
+        "title": "🪿 Refresh Profiles"
+      },
+      {
+        "command": "extension.addProfile",
+        "title": "🪿 Add Profile"
+      },
+      {
+        "command": "profileExplorer.select",
+        "title": "Select Profile"
+      },
+      {
+        "command": "extension.updateProfile",
+        "title": "Update Profile"
+      },
+      {
+        "command": "extension.deleteProfile",
+        "title": "🪿 Delete Profile"
       }
     ],
     "menus": {
@@ -66,6 +111,30 @@
           "command": "extension.sendToGoose",
           "when": "editorHasSelection",
           "group": "navigation"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "extension.refreshProfiles",
+          "when": "view == profileExplorer",
+          "group": "navigation"
+        },
+        {
+          "command": "extension.addProfile",
+          "when": "view == profileExplorer",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "profileExplorer.select",
+          "when": "view == profileExplorer",
+          "group": "inline"
+        },
+        {
+          "command": "extension.deleteProfile",
+          "when": "view == profileExplorer",
+          "group": "inline"
         }
       ]
     }
