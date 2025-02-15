@@ -13,19 +13,6 @@ export function activate(context: vscode.ExtensionContext) {
     // If goose is not found, create a new terminal that installs goose.
     let defaultCommand = "goose session";
 
-    // Check if goose is installed. If cannot locate goose, we open a fresh terminal to install.
-    try {
-        execSync('which goose');
-        console.log("Goose is installed. Will run 'goose session'.");
-    } catch (e) {
-        console.log("No goose found, starting installation terminal...");
-        const installTerm = vscode.window.createTerminal({
-            name: "installing goose"
-        });
-        installTerm.sendText("curl -fsSL https://github.com/block/goose/releases/download/stable/download_cli.sh | bash");
-        installTerm.show();
-    }
-
     function getTerminal(): vscode.Terminal {
         if (!gooseTerminal || gooseTerminal.exitStatus !== undefined) {
             vscode.window.showInformationMessage('goose agent starting, this may take a minute.. ⏰');
